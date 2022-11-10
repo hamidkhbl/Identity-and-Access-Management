@@ -83,6 +83,13 @@ class Drink(db.Model):
             'title': self.title,
             'recipe': json.loads(self.recipe)
         }
+    
+    def format(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'recipe': self.recipe
+        }
 
     '''
     insert()
