@@ -31,7 +31,7 @@ CORS(app)
 @app.route('/drinks')
 def get_drinks():
     try:
-        drinks = [d.format() for d in Drink.query.all()]
+        drinks = [d.long() for d in Drink.query.all()]
         return jsonify({
             'success': True,
             'drinks': drinks
@@ -54,7 +54,7 @@ def get_drink(drink_id):
     drink = Drink.query.filter_by(id=drink_id).one_or_none()
     if drink is None:
         abort(404)
-    return jsonify(drink.format())
+    return jsonify(drink.long())
 
 '''
 @TODO implement endpoint
