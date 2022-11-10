@@ -10,6 +10,23 @@
 
 This project depends on Nodejs and Node Package Manager (NPM). Before continuing, you must download and install Node (the download includes NPM) from [https://nodejs.com/en/download](https://nodejs.org/en/download/).
 
+#### Node version should be v12.20.1 (node --version)
+To run the front end app follow these steps:
+```bash
+1. cd backend
+2. sudo pip install -r requirements.txt
+3. curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash (restart command terminal)
+4. nvm ls-remote
+5. nvm install 14.17.0
+6. npm install -g cordova
+7. npm install -g ionic
+8. npm install -g @angular/cli
+9. npm install --save-dev @angular-devkit/build-angular
+10. npm install --save-dev node-sass
+11. cd ../frontend
+12. ionic repair
+13. ionic serve
+```
 #### Installing Ionic Cli
 
 The Ionic Command Line Interface is required to serve and build the frontend. Instructions for installing the CLI is in the [Ionic Framework Docs](https://ionicframework.com/docs/installation/cli).
