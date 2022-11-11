@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, abort
 from sqlalchemy import exc
 import json
 from flask_cors import CORS
+from functools import wraps
 
 from .database.models import db_drop_and_create_all, setup_db, Drink
 from .auth.auth import AuthError, requires_auth
@@ -12,12 +13,14 @@ setup_db(app)
 CORS(app)
 
 '''
-@TODO uncomment the following line to initialize the datbase
+@TODO --DONE-- uncomment the following line to initialize the datbase
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 !! Running this funciton will add one
 '''
 # db_drop_and_create_all()
+
+
 
 # ROUTES
 '''
@@ -31,7 +34,8 @@ CORS(app)
 @app.route('/drinks')
 def get_drinks():
     try:
-        drinks = [d.long() for d in Drink.query.all()]
+        drinks = [d.short() for d in Drink.query.all()]
+        print(drinks)
         return jsonify({
             'success': True,
             'drinks': drinks
@@ -50,6 +54,7 @@ def get_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:drink_id>')
+@requires_auth('post:drinks')
 def get_drink(drink_id):
     drink = Drink.query.filter_by(id=drink_id).one_or_none()
     if drink is None:
@@ -66,12 +71,13 @@ def get_drink(drink_id):
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks', methods=['POST'])
-def method_name():
+@requires_auth('post:drinks')
+def add_drinks(jwt):
     try:
         title=request.json.get('title')
-        recipe=request.json.get('recipe').replace("'", '"')
-        print(recipe)
-        drink = Drink(title=title, recipe=recipe)
+        recipe=request.json.get('recipe')#.replace("'", '"')
+        print('**********',json.dumps(recipe))
+        drink = Drink(title=title, recipe=json.dumps(recipe))
         drink.insert()
         return jsonify(
             {
@@ -94,7 +100,8 @@ def method_name():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
-def patch_drink(drink_id):
+@requires_auth('patch:drinks')
+def patch_drink(jwt, drink_id):
     title=request.json.get('title')
     recipe=request.json.get('recipe')
     drink = Drink.query.filter_by(id=drink_id).one_or_none()
@@ -102,7 +109,7 @@ def patch_drink(drink_id):
         abort(404)
     else:
         drink.title = title
-        drink.recipe = recipe.replace("'", '"')
+        drink.recipe = json.dumps(recipe)
         drink.update()
         return jsonify({
             'success': True,
@@ -120,7 +127,8 @@ def patch_drink(drink_id):
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
-def delete_drink(drink_id):
+@requires_auth('delete:drinks')
+def delete_drink(jwt, drink_id):
     drink = Drink.query.filter_by(id=drink_id).one_or_none()
     if drink is None:
         abort(404)
