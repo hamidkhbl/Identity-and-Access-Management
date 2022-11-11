@@ -54,12 +54,15 @@ def get_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:drink_id>')
-@requires_auth('post:drinks')
+@requires_auth('get:drinks-detail')
 def get_drink(drink_id):
-    drink = Drink.query.filter_by(id=drink_id).one_or_none()
-    if drink is None:
-        abort(404)
-    return jsonify(drink.long())
+    try:
+        drink = Drink.query.filter_by(id=drink_id).one_or_none()
+        if drink is None:
+            abort(404)
+        return jsonify(drink.long())
+    except:
+        abort(500)
 
 '''
 @TODO implement endpoint
@@ -75,14 +78,16 @@ def get_drink(drink_id):
 def add_drinks(jwt):
     try:
         title=request.json.get('title')
-        recipe=request.json.get('recipe')#.replace("'", '"')
+        recipe=request.json.get('recipe')
         print('**********',json.dumps(recipe))
         drink = Drink(title=title, recipe=json.dumps(recipe))
         drink.insert()
+        drinks = []
+        drinks.append(drink.long())
         return jsonify(
             {
                 'success': True,
-                'drink': drink.long()
+                'drinks': drinks
             }
         )
     except Exception as e:
@@ -102,19 +107,22 @@ def add_drinks(jwt):
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
 @requires_auth('patch:drinks')
 def patch_drink(jwt, drink_id):
-    title=request.json.get('title')
-    recipe=request.json.get('recipe')
-    drink = Drink.query.filter_by(id=drink_id).one_or_none()
-    if drink is None:
-        abort(404)
-    else:
-        drink.title = title
-        drink.recipe = json.dumps(recipe)
-        drink.update()
-        return jsonify({
-            'success': True,
-            'drink': drink.long()
-        })
+    try:
+        title=request.json.get('title')
+        recipe=request.json.get('recipe')
+        drink = Drink.query.filter_by(id=drink_id).one_or_none()
+        if drink is None:
+            abort(404)
+        else:
+            drink.title = title
+            drink.recipe = json.dumps(recipe)
+            drink.update()
+            return jsonify({
+                'success': True,
+                'drink': drink.long()
+            })
+    except:
+        abort(500)
 
 '''
 @TODO implement endpoint
@@ -129,15 +137,18 @@ def patch_drink(jwt, drink_id):
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
 @requires_auth('delete:drinks')
 def delete_drink(jwt, drink_id):
-    drink = Drink.query.filter_by(id=drink_id).one_or_none()
-    if drink is None:
-        abort(404)
-    else:
-        drink.delete()
-        return jsonify({
-            'success': True,
-            'drink': drink.format()
-        })
+    try:
+        drink = Drink.query.filter_by(id=drink_id).one_or_none()
+        if drink is None:
+            abort(404)
+        else:
+            drink.delete()
+            return jsonify({
+                'success': True,
+                'delete': drink.id
+            })
+    except:
+        abort(500)
 
 # Error Handling
 '''
