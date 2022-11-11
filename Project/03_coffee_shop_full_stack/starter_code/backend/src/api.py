@@ -123,7 +123,8 @@ def patch_drink(jwt, drink_id):
                 'success': True,
                 'drink': drink.long()
             })
-    except:
+    except Exception as e:
+        print(e)
         abort(500)
 
 '''
@@ -209,3 +210,11 @@ def server_error(error):
         "error": 500,
         "message": "Something went wrong!"
         }), 500
+    
+@app.errorhandler(405)
+def server_error(error):
+    return jsonify({
+        "success": False,
+        "error": 405,
+        "message": "Method Not Allowed"
+        }), 405
