@@ -53,15 +53,17 @@ def get_drinks():
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
-@app.route('/drinks/<int:drink_id>')
+@app.route('/drinks-detail')
 @requires_auth('get:drinks-detail')
 def get_drink(drink_id):
     try:
-        drink = Drink.query.filter_by(id=drink_id).one_or_none()
-        if drink is None:
-            abort(404)
-        return jsonify(drink.long())
-    except:
+        drinks = [d.long() for d in Drink.query]
+        return jsonify({
+            'sucess': True,
+            'drinks': drinks
+        })
+    except Exception as e:
+        print(e)
         abort(500)
 
 '''
@@ -180,9 +182,30 @@ def unprocessable(error):
 @TODO implement error handler for 404
     error handler should conform to general task above
 '''
-
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "success": False,
+        "error": 404,
+        "message": "Resource not found."
+        }), 404
 
 '''
 @TODO implement error handler for AuthError
     error handler should conform to general task above
 '''
+@app.errorhandler(401)
+def not_found(error):
+    return jsonify({
+        "success": False,
+        "error": 401,
+        "message": "Invalid token."
+        }), 401
+    
+@app.errorhandler(500)
+def server_error(error):
+    return jsonify({
+        "success": False,
+        "error": 500,
+        "message": "Something went wrong!"
+        }), 500
